@@ -1,0 +1,13 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>{{ user.username }} Statistics</title>
+{% endblock %}
+{% block content %}
+    <h1> {{ user.username }} Statistics </h1>
+    {% if user.pfp %}
+        <img style="aspect-ratio: 1/1; width: 128px" src="{{ user.pfp.image.url }}" alt="Profile Picture">
+    {% endif %}
+    <p> Total cases opened: {{ user_stats.total_cases_opened }} </p>
+{% endblock %}

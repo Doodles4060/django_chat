@@ -1,0 +1,30 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>Login</title>
+{% endblock %}
+
+{% block content %}
+    <div class="w-50 mx-auto">
+        <h1>Login</h1>
+        <form action="{% url 'chat:login' %}" method="post" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <div class="mb-2 form-floating">
+                {{ form.username }}
+                <label for="{{ form.username.id_for_label }}"
+                       class="form-label text-capitalize">{{ form.username.label }}</label>
+            </div>
+            <div class="mb-2 form-floating">
+                {{ form.password }}
+                <label for="{{ form.password.id_for_label }}"
+                       class="form-label text-capitalize">{{ form.password.label }}</label>
+            </div>
+            <input class="btn btn-primary" type="submit" value="Submit">
+        </form>
+        <a href="{% url 'chat:signup' %}"
+           class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sing Up
+            --></a>
+    </div>
+{% endblock %}

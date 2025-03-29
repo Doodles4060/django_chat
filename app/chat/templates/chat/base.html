@@ -1,0 +1,77 @@
+{% load static %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'chat/bootstrap-5.3.3-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'chat/bootstrap-icons-1.11.3/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'chat/css/base.css' %}">
+    {% block meta %}
+    {% endblock %}
+</head>
+<body class="overflow-x-hidden">
+<div
+        hx-get="{% url 'chat:lazy_bg_video' %}"
+        hx-trigger="load"
+        hx-swap="outerHTML"
+        class="video-placeholder">
+    <video autoplay muted loop class="background-video">
+        <source src="{% static 'chat/vid/background-video-cheap.mp4' %}" type="video/mp4">
+    </video>
+</div>
+<nav class="navbar mb-5">
+    <div class="container d-flex flex-row justify-content-between ">
+        <header class="d-flex justify-content-center py-3">
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a class="nav-link" href="{% url 'chat:home' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'chat:chat_group' 1 %}">Live Chat</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'tools:svg_pixelation' %}">SVG Pixelation</a></li>
+            </ul>
+        </header>
+        {% if user.is_authenticated %}
+            <a href="{% url 'chat:logout' %}" class="btn btn-outline-danger p-2 d-flex flex-row gap-1">
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+            </a>
+        {% endif %}
+    </div>
+</nav>
+<main class="main">
+    <div class="outer-content-wrapper container py-5 border rounded-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <div class="messages position-absolute bottom-0 end-0 mx-5">
+        {% if messages %}
+            <ul class="messages mt-5">
+                {% for message in messages %}
+                    <li class="message mt-3">
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+                             role="alert">
+                            <strong>{{ message.tags|title }}</strong> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</main>
+<script src="{% static 'chat/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'chat/htmx-2.0.4-dist/htmx.min.js' %}"></script>
+<script>
+    const current_path = window.location.pathname
+    const nav_links = document.querySelectorAll(".nav-link")
+
+
+    nav_links.forEach(link => {
+        if (link.getAttribute("href") === current_path) {
+            link.classList.add("active")
+        }
+    })
+</script>
+</body>
+</html>

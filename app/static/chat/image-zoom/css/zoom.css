@@ -1,0 +1,31 @@
+* {
+    box-sizing: border-box;
+}
+
+.img-zoom-container {
+    position: relative;
+
+    display: flex; /* Makes the container use Flexbox */
+    align-items: center; /* Vertically centers the items */
+
+    width: 100%;
+    height: 500px;
+}
+
+.processed-image {
+    height: 100%;
+}
+
+.img-zoom-result {
+    border: 1px solid #d4d4d4;
+    aspect-ratio: 1/1;
+    height: 100%;
+}
+
+.img-zoom-lens {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+
+    aspect-ratio: 1/1;
+    width: 80px;
+}

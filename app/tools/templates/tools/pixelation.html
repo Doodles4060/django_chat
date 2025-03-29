@@ -1,0 +1,66 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>Pixelate .svg file</title>
+    <link rel="stylesheet" href="{% static 'tools/image-zoom/css/zoom.css' %}">
+
+    <script defer src="{% static 'tools/image-zoom/js/zoom.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="w-50 mx-auto">
+        <form action="{% url 'tools:svg_pixelation' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="{{ form.svg_file.id_for_label }}"
+                   class="form-label text-capitalize">{{ form.svg_file.label }}</label>
+            <div class="input-group mb-2">
+                {{ form.svg_file }}
+                <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">Submit</button>
+            </div>
+            <div class="mb-2">
+                <label for="{{ form.aspect_ratio.id_for_label }}"
+                       class="form-label text-capitalize">{{ form.aspect_ratio.label }}</label>
+                {{ form.aspect_ratio }}
+            </div>
+            <div class="mb-2">
+                <label for="{{ form.pixelation_level.id_for_label }}"
+                       class="form-label text-capitalize">{{ form.pixelation_level.label }}</label>
+                {{ form.pixelation_level }}
+            </div>
+            <input class="btn btn-primary" type="submit" value="Generate">
+        </form>
+    </div>
+    {% if image_base64 %}
+        <div class="mt-5">
+            <h3>Processed Image:</h3>
+            <div class="img-zoom-container">
+                <img id="processed-image" class="processed-image" src="data:image/png;base64,{{ image_base64 }}"
+                     style="height: 500px"
+                     alt="Processed SVG">
+                <br>
+                <div id="image-zoom" class="img-zoom-result">
+                </div>
+            </div>
+            <button id="download-btn" class="btn btn-primary">
+                <i class="bi bi-download"></i> Download Image
+            </button>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    imageZoom("processed-image", "image-zoom");
+                });
+
+                document.getElementById("download-btn").addEventListener("click", function () {
+                    let image = document.getElementById("processed-image").src;  // Get Base64 image source
+                    let link = document.createElement("a");
+                    link.href = image;
+                    link.download = "processed_image.png";  // Set filename
+                    document.body.appendChild(link);
+                    link.click();  // Trigger download
+                    document.body.removeChild(link);  // Clean up
+                });
+            </script>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+# PyCharm settings (if using PyCharm)
+.idea/
+
+# Virtual environment
+venv/
+.env
+*.env
+
+# Bytecode and temporary files
+__pycache__/
+*.py[cod]
+*.swp
+*.swo
+
+# PostgreSQL-related files
+*.dump
+*.sql
+
+# Django migration cache files
+*.pyc
+
+# Logs and debugging files
+*.log
+logs/
+
+# Local settings (if applicable)
+settings_local.py
+
+# Compiled Python files
+*.pyc
+*.pyo
+
