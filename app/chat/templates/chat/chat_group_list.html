@@ -1,0 +1,60 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>Groups</title>
+    <link rel="stylesheet" href="{% static 'chat/css/chat_group_list.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h3 class="mb-5">Available groups</h3>
+        <ul class="container-fluid">
+            {% for group in chat_groups %}
+                <li class="group row justify-content-between border border-light border-1 rounded-3 py-3 my-3">
+                    <h3 class="group-name col-3 d-flex align-content-center my-auto justify-content-center">{{ group.name }}</h3>
+                    <div class="last_message col d-flex flex-row gap-2">
+                        <span class="text-body-secondary">Recent</span>
+                        <div class="message align-self-start d-flex flex-column p-2 gap-2 bg-white border border-1 rounded-2"
+                             style="min-width: 10vw">
+                            {% if group.last_message %}
+                                <div id="author_{{ group.last_message.author.pk }}"
+                                     class="author d-flex flex-row gap-2 border-bottom border-1 pb-2">
+                                    <img src="{{ group.last_message.author.pfp.image.url }}" alt="Avatar"
+                                         class="pfp rounded-circle" width="24" height="24">
+
+                                    <a href="{% url 'chat:user_profile' group.last_message.author.pk %}"
+                                       class="link-dark">
+                                        {% if group.last_message.author.username == user.username %}
+                                            <strong>You</strong>
+                                        {% else %}
+                                            <strong>{{ group.last_message.author.username }}</strong>
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                <span class="message-body">{{ group.last_message.body }}</span>
+                            {% else %}
+                                <span>No recent activity</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="join_chat col d-flex flex-row justify-content-end">
+                        <a class="btn btn-primary px-4 py-2 my-auto"
+                           href="{% url 'chat:chat_group' group.id %}">Join</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        const last_message_body = document.querySelector('.message-body');
+
+        if (last_message_body) {
+            const message = last_message_body.innerText;
+            let maxLength = 40;
+            if (message.length > maxLength) {
+                last_message_body.innerText = message.substring(0, maxLength) + '...';
+            }
+        }
+    </script>
+{% endblock %}

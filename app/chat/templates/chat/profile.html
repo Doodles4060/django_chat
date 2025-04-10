@@ -1,0 +1,55 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'chat/css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="h-100">
+        <div class="w-75 mx-auto">
+            <h3>
+                {{ requested_user.username }}
+                {% if requested_user.is_staff %}
+                    <small class="text-body-secondary">administrator</small>
+                {% endif %}
+            </h3>
+            <img class="rounded-circle my-3" style="aspect-ratio: 1/1; width: 128px" src="{{ requested_user.pfp.image.url }}"
+                 alt="Profile Picture">
+            {% if pfp_form %}
+            <form action="{% url 'chat:upload_pfp' %}" method="post" enctype="multipart/form-data"
+                  class="pfp-form rounded-2 pt-3 mt-2 w-50">
+                {% csrf_token %}
+                <h6><label for="{{ form.image.id_for_label }}"
+                           class="form-label">Upload profile picture </label></h6>
+                <div class="input-group">
+                    {{ pfp_form.image }}
+                    <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">Submit
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+            <hr>
+            <div class="d-flex flex-column w-50">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Email</span>
+                    <input type="text" class="form-control" placeholder="{{ requested_user.email }}" aria-label="Email"
+                           readonly>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">First name</span>
+                    <input type="text" class="form-control" placeholder="{{ requested_user.first_name }}"
+                           aria-label="First name"
+                           readonly>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Last name</span>
+                    <input type="text" class="form-control" placeholder="{{ requested_user.last_name }}"
+                           aria-label="Last name"
+                           readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.files.base import ContentFile
 from django.db import models
 
+from typing import Union
+
 BaseModel = models.Model
 
 class User(AbstractUser):
@@ -36,6 +38,12 @@ class ChatGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def last_message(self):
+        if self.chat_messages.count() == 0:
+            return None
+        return self.chat_messages.first()
 
 
 class GroupMessage(models.Model):

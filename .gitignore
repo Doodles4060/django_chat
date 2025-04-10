@@ -30,3 +30,8 @@ settings_local.py
 *.pyc
 *.pyo
 
+# ignore user pfps within the profile_pics directory
+app/media/profile_pics/
+
+# Except the folder itself and a placeholder file
+/app/media/profile_pics/*

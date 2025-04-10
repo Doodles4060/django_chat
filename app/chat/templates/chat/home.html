@@ -22,7 +22,7 @@
                       class="pfp-form rounded-2 pt-3 mt-2 w-50">
                     {% csrf_token %}
                     <h6><label for="{{ form.image.id_for_label }}"
-                           class="text-light form-label ms-2">Upload profile picture </label></h6>
+                           class="form-label">Upload profile picture </label></h6>
                     <div class="input-group">
                         {{ pfp_form.image }}
                         <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">Submit

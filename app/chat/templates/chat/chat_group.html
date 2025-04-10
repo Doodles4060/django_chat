@@ -25,7 +25,10 @@
                                 <img style="aspect-ratio: 1/1; width: 32px" src="{{ message.author.pfp.image.url }}"
                                      alt="Profile Picture"
                                      class="rounded-circle">
-                                <span class="fw-bold">From: You</span>
+                                <span class="fw-bold">
+                                    From: <a class="link-dark" href="{% url 'chat:user_profile' message.author.pk %}">
+                                    You
+                                </a></span>
                                 <br>
                                 <p class="border-top m-0">{{ message.body }}</p>
                                 <span class="date-created fs-6">{{ message.created|formatiso }}</span>
@@ -39,7 +42,10 @@
                                 <img style="aspect-ratio: 1/1; width: 32px" src="{{ message.author.pfp.image.url }}"
                                      alt="Profile Picture"
                                      class="rounded-circle">
-                                <span class="fw-bold">From: {{ message.author }}</span>
+                                <span class="fw-bold">
+                                    From: <a class="link-dark" href="{% url 'chat:user_profile' message.author.pk %}">
+                                    {{ message.author }}
+                                    </a></span>
                                 <br>
                                 <p class="border-top m-0">{{ message.body }}</p>
                                 <span class="date-created fs-6">{{ message.created.isoformat }}</span>
@@ -70,7 +76,7 @@
         // Handshake and connection to the websocket server.
 
         let protocol = window.location.protocol === "https:" ? "wss" : "ws"
-        let url = `${protocol}://${window.location.host}/ws/socket-server/`
+        let url = `${protocol}://${window.location.host}/ws/chat/groups/{{ group.pk }}/`
 
         const chatSocket = new WebSocket(url)
 
@@ -85,6 +91,16 @@
             let date = new Date(raw_date);
             return date.toLocaleString();
         }
+
+        // Format the date for all the messages loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            const messages = document.querySelectorAll('.message')
+            messages.forEach(message => {
+                let date = message.querySelector('.date-created')
+                let raw_date = date.innerText
+                date.innerText = formatDate(raw_date)
+            })
+        })
 
         function build_user_message(data) {
             /*  building notifications from the users  */

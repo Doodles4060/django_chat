@@ -79,7 +79,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'live_chat.wsgi.application'
 ASGI_APPLICATION = 'live_chat.asgi.application'
 
 CHANNEL_LAYERS = {

@@ -8,7 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
-from django.views.generic import View, TemplateView
+from django.views.generic import View, TemplateView, ListView
+
+from typing import Dict, Any
 
 from .forms import RegistrationForm, LoginForm, PFPForm
 from .models import User, PFP, ChatGroup
@@ -32,12 +34,21 @@ def login_user_if_exists(request, form: Form) -> bool:
         username=form.cleaned_data['username'],
         password=form.cleaned_data['password'],
     )
-    if user is not None:
+    if user:
         login(request, user)
         messages.success(request, 'Login succeeded!')
         return True
     return False
 
+def redirect_to_me(request):
+    """
+    Redirects to the current user profile page
+    """
+    if request.user.is_authenticated:
+        return redirect('chat:user_profile_self')
+    else:
+        messages.error(request, 'You have to be authenticated!')
+        return redirect('chat:login')
 
 class LoginView(View):
     # Login view class
@@ -55,7 +66,7 @@ class LoginView(View):
                 if redirect_to:
                     return redirect(redirect_to)
 
-                return redirect('chat:home')
+                return redirect('chat:user_profile_self')
 
         messages.error(request, 'Login failed!')
         return render(request, self.template_name, context={'form': form})
@@ -129,9 +140,42 @@ class HomeView(TemplateView):
     }
 
 
+'''User profile view class'''
+
+
+class UserProfileView(View):
+    template_name = 'chat/profile.html'
+
+    def get(self, request, *args, **kwargs):
+        context: Dict[str, Any] = {
+            'requested_user': None,
+            'pfp_form': None
+        }
+
+        requested_user = None
+        if 'pk' in kwargs:
+            requested_user = User.objects.get(pk=kwargs['pk'])
+        elif 'username' in kwargs:
+            requested_user = User.objects.get(username=kwargs['username'])
+        elif request.user.is_authenticated:
+            requested_user = User.objects.get(pk=request.user.pk)
+
+        if requested_user is None:
+            messages.error(request, 'You have to be authenticated or enter a valid username or id of the user')
+            return redirect('chat:login')
+
+        # if the user is authenticated and is the same as the requested user he can change his profile picture
+        if requested_user == request.user:
+            context['pfp_form'] = PFPForm()
+
+        context['requested_user'] = requested_user
+        return render(request, self.template_name, context=context)
+
+
 '''
 Chat group view class and methods
 '''
+
 
 def lazy_messages(request, group_id: int):
     chat_group = get_object_or_404(ChatGroup, id=group_id)
@@ -139,6 +183,18 @@ def lazy_messages(request, group_id: int):
 
     return render(request, 'group_messages.html', {'chat_messages': chat_messages})
 
+class ChatGroupListView(ListView):
+    model = ChatGroup
+    template_name = 'chat/chat_group_list.html'
+    context_object_name = 'chat_groups'
+
+    def get_queryset(self):
+        return ChatGroup.objects.all()[:30]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['chat_groups'] = self.get_queryset()
+        return context
 
 class ChatGroupView(LoginRequiredMixin, View):
     template_name = 'chat/chat_group.html'
@@ -148,6 +204,7 @@ class ChatGroupView(LoginRequiredMixin, View):
     """
     The view can be accessed by either primary key or name of the group
     """
+
     def get(self, request, *args, **kwargs) -> HttpResponse:
         if 'pk' in kwargs:
             chat_group = get_object_or_404(ChatGroup, pk=kwargs['pk'])

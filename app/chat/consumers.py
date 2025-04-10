@@ -6,16 +6,34 @@ import html
 from django.core.cache import cache
 from django.utils import formats
 from django.utils.timezone import localtime
+from typing import Union
 
 from .models import User, ChatGroup, GroupMessage
 
 
 class ChatConsumer(WebsocketConsumer):
-    def connect(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_group_name = None
+
+    def connect(self) -> None:
         """
         Accepts user connection to the websocket server and adds them to the test chat group
         """
-        self.room_group_name = 'test'
+
+        group = None
+        if 'group_name' in self.scope['url_route']['kwargs']:
+            group_name = self.scope['url_route']['kwargs']['group_name']
+            group = ChatGroup.objects.get(name=group_name)
+        elif 'pk' in self.scope['url_route']['kwargs']:
+            group_pk = self.scope['url_route']['kwargs']['pk']
+            group = ChatGroup.objects.get(pk=group_pk)
+
+        if group is None:
+            self.close()
+            return
+
+        self.room_group_name = group.name
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -88,6 +106,9 @@ class ChatConsumer(WebsocketConsumer):
             )
 
     def disconnect(self, close_code):
+        if self.room_group_name is None:
+            return
+
         """
         Decreases user count and sends current value along with the notification that someone has left the chat
         """
